@@ -69,6 +69,10 @@ table tbody tr:nth-of-type(even) {
   background-color: #f3f3f3;
 }
 
+table td:nth-child(3) {
+  word-break: break-all;
+}
+
 th, td {
   padding: 7px 9px;
 }
