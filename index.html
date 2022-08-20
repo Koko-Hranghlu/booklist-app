@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>CodePen - JavaScript BookList App</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<div class="container">
+    <h1>
+      <i class="fa-solid fa-book-open-reader"></i> My<span>Read</span>List</h1>
+      <form id="book-form">
+        <div class="form-group">
+          <label for="title">Title</label>
+          <input type="text" id="title" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="author">Author</label>
+          <input type="text" id="author" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="isbn">ISBN#</label>
+          <input type="text" id="isbn" class="form-control">
+        </div>
+        <input type="submit" value="Add Book">
+      </form>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Author</th>
+              <th>ISBN#</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="book-list">
+            <tr>
+              <td>The Alchemist</td>
+              <td>Paulo Coelho</td>
+              <td>1245</td>
+              <td><a href="#" class="fa-solid fa-trash-can"></a></td>
+            </tr>
+            <tr>
+              <td>How to Stop Worrying and Start Living</td>
+              <td>Dale Carnegie</td>
+              <td>3433</td>
+              <td><a href="#" class="fa-solid fa-trash-can"></a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+  </div>
+<!-- partial -->
+  <script  src="./script.js"></script>
+
+</body>
+</html>
