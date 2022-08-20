@@ -1,73 +1,93 @@
 /*
 CLASSES:-
-1. Class Book represents a book to be created 
-2. Class UI handles interface. It has 4 static methods:
- - displayBooks method that gets called when the DOM is loaded, which in turn calls another function, to retain the data that had been added
- - addBookToList method that adds book's data row to the table
- - deleteBook method deletes the row associated with the remove button
- - clearFields method clears all the input values
-3. Class Store handles localStorage. It has 3 static methods:
- - getBooks method returns an array of empty or non- empty books from localStorage
- - addBook method adds a specific book to books array of localStorage
- - removeBook method removes a specific book from books array of localStorage
-3. Store for elements in localStorage
+1. Class Book represents an object book to be created 
 
-Steps: 
-1. Code the interactivity in the userinterface
-2. Make the messages of validation, successes simple
-3. Add interactivity in localStorage
-4. Add more beautiful messages of the step 2
+2. Class UI handles interface. It has 4 static methods:-
+ - displayBooks: gets an array of books object from Store and loops through it, passing each book to addBookToList method of UI in each call, so that it retains the data when the page refreshes
+ - addBookToList: takes book object that was passed and populates tds of a dynamically created tr with the books's properties, also adds a td of delete button and appends the tr to the bookList
+ - deleteBook: if the clicked element that was passed is the delete button, it removes the book row that the delete button resides in 
+ - clearFields: clears all the input values
+ 
+3. Class Store handles localStorage. It has 3 static methods:
+ - getBooks returns an array of empty or non-empty books from localStorage
+ - addBook adds a specific book to books array of localStorage
+ - removeBook removes a specific book from books array of localStorage
+ 
+EVENTS:-
+1. Form submit: 
+ - prevents the default submit event
+ - gets all the 3 input field values
+ - Validates:
+  - if any input field is empty, it alerts error messages
+  - else, creates book object from Book Class using the values from input fields
+  - calls and passes book object to addBookToList method of UI
+  - calls and passes book object to addBook method of Store
+  - calls the clearFields method of UI
+  - alerts success message
+  
+2. BookList click:
+ - delete button wanted, so gets the element that triggered the event
+ - gets the textContent of isbn td cell, which is the previous element sibling of child's parent
+ - calls and passes the clickedEl to deleteBook method of UI
+ - calls and passes the isbn to removeBook method of Store
+ 
+3. Document DOMContentLoaded:
+ - calls displayBooks method of UI
 */
+
+const form = document.querySelector("#book-form")
+const titleField = document.querySelector("#title")
+const authorField = document.querySelector("#author")
+const isbnField = document.querySelector("#isbn")
+const bookList = document.querySelector('#book-list')
 
 class Book {
   constructor(title, author, isbn) {
     this.title = title
     this.author = author
-    this.isbn = isbn
+    this.isbn = isbn  
   }
 }
 
 class UI {
   static displayBooks() {
-    const StoredBooks = Store.getBooks()
-      const books = StoredBooks
+      const books = Store.getBooks()
       books.forEach(book => UI.addBookToList(book))
   }
   
   static addBookToList(book) {
-    const list = document.querySelector('#book-list');
     const row = document.createElement('tr');
     row.innerHTML = `
       <td>${book.title}</td>
       <td>${book.author}</td>
       <td>${book.isbn}</td>
       <td><a href="#" class="fa-solid fa-trash-can"></a></td>
-    `;
-    list.appendChild(row);
+    `
+    bookList.appendChild(row)
   }
 
   static deleteBook(el) {
-    if(el.classList.contains('fa-trash-can')) {
-      el.parentElement.parentElement.remove();
-    }
+    if(el.classList.contains('fa-trash-can')) el.parentElement.parentElement.remove()
   }
 
-  /*static showAlert(message, className) {
-    const div = document.createElement('div');
-    div.className = `alert alert-${className}`;
-    div.appendChild(document.createTextNode(message));
-    const container = document.querySelector('.container');
-    const form = document.querySelector('#book-form');
-    container.insertBefore(div, form);
-
-    // Vanish in 3 seconds
-    setTimeout(() => document.querySelector('.alert').remove(), 3000);
-  }*/
   static clearFields() {
-    document.querySelector('#title').value = '';
-    document.querySelector('#author').value = '';
-    document.querySelector('#isbn').value = '';
+    titleField.value = ''
+    authorField.value = ''
+    isbnField.value = ''
   }
+  
+  //optional
+  /*static showAlert(message, className) {
+      const div = document.createElement('div');
+      div.className = `alert alert-${className}`;
+      div.appendChild(document.createTextNode(message));
+      const container = document.querySelector('.container');
+      const form = document.querySelector('#book-form');
+      container.insertBefore(div, form);
+  
+      // Vanish in 3 seconds
+      setTimeout(() => document.querySelector('.alert').remove(), 3000);
+    }*/
 }
 
 class Store {
@@ -95,39 +115,32 @@ class Store {
   }
 }
 
-document.querySelector('#book-form').addEventListener('submit', (e) => {
+form.addEventListener('submit', (e) => {
   e.preventDefault();
-  const title = document.querySelector('#title').value;
-  const author = document.querySelector('#author').value;
-  const isbn = document.querySelector('#isbn').value;
-
-  const emptyField = title === "" || author === "" || isbn === ""
-  if(emptyField) alert('fill the shits!')
+  const title = titleField.value
+  const author = authorField.value
+  const isbn = isbnField.value
+  
+  const empty = title === "" || author === "" || isbn === ""
+  if(empty) alert('fill all shits!')
    else {
     const book = new Book(title, author, isbn);
 
     UI.addBookToList(book);
-
     Store.addBook(book);
-    
-    /*UI.showAlert('Book Added', 'success')*/
-
     UI.clearFields();
+    alert('Book Added!')
   }
 });
 
-// Event: Remove a Book from UI and locaStorage
-document.querySelector('#book-list').addEventListener('click', e => {
+bookList.addEventListener('click', e => {
   const clickedEl = e.target
   
   const isbn = clickedEl.parentElement.previousElementSibling.textContent
-  // Remove book from UI
+
   UI.deleteBook(clickedEl);
-
-  // Remove book from store
   Store.removeBook(isbn);
-
-  /*UI.showAlert('Book Removed', 'success');*/
+  alert('Book Removed!')
 });
 
 document.addEventListener('DOMContentLoaded', UI.displayBooks)
