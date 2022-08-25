@@ -27,7 +27,7 @@ EVENTS:-
   
 2. BookList click:
  - delete button wanted, so gets the element that triggered the event
- - gets the textContent of isbn td cell, which is the previous element sibling of child's parent
+ - if it's delete button, it will get the textContent of isbn td tag, which is the previous, previous element sibling of delete's button parent
  - calls and passes the clickedEl to deleteBook method of UI
  - calls and passes the isbn to removeBook method of Store
  
@@ -56,18 +56,21 @@ class UI {
   }
   
   static addBookToList(book) {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${book.title}</td>
-      <td>${book.author}</td>
-      <td>${book.isbn}</td>
-      <td><a href="#" class="fa-solid fa-trash-can"></a></td>
-    `
-    bookList.appendChild(row)
+      let row = document.createElement('tr');
+      row.innerHTML = `
+                  <td>${book.title}</td>
+                  <td>${book.author}</td>
+                  <td>${book.isbn}</td>
+                  <td id="edit">Edit</td>
+                  <td><a href="#" class="fa-solid fa-trash-can" id="delete"></a></td>
+                `
+      bookList.appendChild(row)
   }
-
+  
+  
   static deleteBook(el) {
-    if(el.classList.contains('fa-trash-can')) el.parentElement.parentElement.remove()
+    el.parentElement.parentElement.remove()
+    alert('Book Removed!')
   }
 
   static clearFields() {
@@ -90,25 +93,26 @@ class UI {
     }*/
 }
 
+
 class Store {
   static getBooks() {
     let books;
     if(localStorage.getItem('books') === null) books = []
     else books = JSON.parse(localStorage.getItem('books'));
-    return books;
+    return books
   }
   
   static addBook(book) {
-    const books = Store.getBooks();
-    books.push(book);
-    localStorage.setItem('books', JSON.stringify(books));
+      const books = Store.getBooks();
+      books.push(book);
+      localStorage.setItem('books', JSON.stringify(books));
   }
   
   static removeBook(isbn) {
     const books = Store.getBooks();
 
     books.forEach((book, index) => {
-      if(book.isbn === isbn) books.splice(index, 1);
+      if(book.isbn == isbn) books.splice(index, 1);
     });
 
     localStorage.setItem('books', JSON.stringify(books));
@@ -122,10 +126,9 @@ form.addEventListener('submit', (e) => {
   const isbn = isbnField.value
   
   const empty = title === "" || author === "" || isbn === ""
-  if(empty) alert('fill all shits!')
+  if(empty) alert('fill shits')
    else {
     const book = new Book(title, author, isbn);
-
     UI.addBookToList(book);
     Store.addBook(book);
     UI.clearFields();
@@ -135,12 +138,11 @@ form.addEventListener('submit', (e) => {
 
 bookList.addEventListener('click', e => {
   const clickedEl = e.target
-  
-  const isbn = clickedEl.parentElement.previousElementSibling.textContent
-
-  UI.deleteBook(clickedEl);
-  Store.removeBook(isbn);
-  alert('Book Removed!')
+  if (clickedEl.id == "delete") {
+    const isbn = clickedEl.parentElement.previousElementSibling.previousElementSibling.textContent
+    UI.deleteBook(clickedEl);
+    Store.removeBook(isbn);
+  }
 });
 
 document.addEventListener('DOMContentLoaded', UI.displayBooks)
