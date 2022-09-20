@@ -75,8 +75,7 @@ class UI {
   
   }
   
-  static updateInput(editBtn, isbn) {
-    selectedRow = editBtn.parentElement
+  static updateInput(isbn) {
     titleField.value = selectedRow.cells[0].innerText
     authorField.value = selectedRow.cells[1].innerText
     isbnField.value = selectedRow.cells[2].innerText
@@ -176,13 +175,14 @@ form.addEventListener('submit', (e) => {
 
 bookList.addEventListener('click', e => {
   const clickedEl = e.target
-  const isbn = clickedEl.previousElementSibling.textContent
+  selectedRow = clickedEl.closest('tr')
+  const isbn = selectedRow.cells[2].innerText
   if (clickedEl.id == "delete") {
     UI.deleteBook(clickedEl);
     Store.removeBook(isbn);
   }
   
-  if (clickedEl.id == "edit") UI.updateInput(clickedEl, isbn)
+  if (clickedEl.id == "edit") UI.updateInput(isbn)
     
 });
 
