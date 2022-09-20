@@ -40,7 +40,8 @@ const titleField = document.querySelector("#title")
 const authorField = document.querySelector("#author")
 const isbnField = document.querySelector("#isbn")
 const bookList = document.querySelector('#book-list')
-
+let selectedRow = null
+let index
 class Book {
   constructor(title, author, isbn) {
     this.title = title
@@ -67,10 +68,30 @@ class UI {
       bookList.appendChild(row)
   }
   
+  static updateBook (book) {
+  selectedRow.cells[0].innerText = book.title
+  selectedRow.cells[1].innerText = book.author
+  selectedRow.cells[2].innerText = book.isbn
+  
+  }
+  
+  static updateInput(editBtn, isbn) {
+    selectedRow = editBtn.parentElement
+    titleField.value = selectedRow.cells[0].innerText
+    authorField.value = selectedRow.cells[1].innerText
+    isbnField.value = selectedRow.cells[2].innerText
+    const books = Store.getBooks()
+    index = books.findIndex(book => book.isbn == isbn)
+  }
   
   static deleteBook(el) {
     el.parentElement.parentElement.remove()
     alert('Book Removed!')
+  }
+  
+  static validateForm(title, author, isbn) {
+    const empty = title === "" || author === "" || isbn === ""
+    if (empty) return true
   }
 
   static clearFields() {
@@ -78,6 +99,7 @@ class UI {
     authorField.value = ''
     isbnField.value = ''
   }
+  
   
   //optional
   /*static showAlert(message, className) {
@@ -97,15 +119,24 @@ class UI {
 class Store {
   static getBooks() {
     let books;
-    if(localStorage.getItem('books') === null) books = []
-    else books = JSON.parse(localStorage.getItem('books'));
+    if(localStorage.getItem('brad-books') === null) books = []
+    else books = JSON.parse(localStorage.getItem('brad-books'));
     return books
   }
   
   static addBook(book) {
       const books = Store.getBooks();
       books.push(book);
-      localStorage.setItem('books', JSON.stringify(books));
+      localStorage.setItem('brad-books', JSON.stringify(books));
+  }
+  
+  static updateBook(book) {
+    const books = Store.getBooks()
+    const currentBook = books[index]
+    currentBook.title = book.title
+    currentBook.author = book.author
+    currentBook.isbn = book.isbn
+    localStorage.setItem('brad-books', JSON.stringify(books))
   }
   
   static removeBook(isbn) {
@@ -115,7 +146,7 @@ class Store {
       if(book.isbn == isbn) books.splice(index, 1);
     });
 
-    localStorage.setItem('books', JSON.stringify(books));
+    localStorage.setItem('brad-books', JSON.stringify(books));
   }
 }
 
@@ -124,26 +155,35 @@ form.addEventListener('submit', (e) => {
   const title = titleField.value
   const author = authorField.value
   const isbn = isbnField.value
+  const isEmpty = UI.validateForm(title, author, isbn)
   
-  const empty = title === "" || author === "" || isbn === ""
-  if(empty) alert('fill shits')
-   else {
-    const book = new Book(title, author, isbn);
-    UI.addBookToList(book);
-    Store.addBook(book);
+  if (isEmpty) alert('fill shits')
+  else {
+    const book = new Book(title, author, isbn)
+    if (selectedRow == null) {
+      UI.addBookToList(book)
+      Store.addBook(book)
+    }
+    else {
+      UI.updateBook(book)
+      Store.updateBook(book)
+    }
     UI.clearFields();
-    alert('Book Added!')
   }
+  
+  
 });
 
 bookList.addEventListener('click', e => {
   const clickedEl = e.target
+  const isbn = clickedEl.previousElementSibling.textContent
   if (clickedEl.id == "delete") {
-    const isbn = clickedEl.parentElement.previousElementSibling.previousElementSibling.textContent
     UI.deleteBook(clickedEl);
     Store.removeBook(isbn);
   }
+  
+  if (clickedEl.id == "edit") UI.updateInput(clickedEl, isbn)
+    
 });
 
 document.addEventListener('DOMContentLoaded', UI.displayBooks)
-
